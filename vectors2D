@@ -4,7 +4,7 @@ using namespace std;
 class Vector2D
 {
 public:
-    int x, y;
+    float x, y;
     Vector2D();
 	Vector2D(float a, float b);
 	float getX();
@@ -17,8 +17,6 @@ public:
     Vector2D scalar (Vector2D b);
     void print (Vector2D v);
 
-private:
-	float x_x, y_y;
 };
 
 Vector2D::Vector2D() {}
