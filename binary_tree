@@ -19,6 +19,7 @@ public:
 	BinTreeEl* balance(BinTreeEl* ver);
     int set_h(BinTreeEl* tree);
     void delete_tree (BinTreeEl* root);
+
 private:
     BinTreeEl* left_rotation(BinTreeEl* p);
 	int bfactor(BinTreeEl* ver);
@@ -55,28 +56,68 @@ void BinTreeEl::fix_h(BinTreeEl* p)
 	p->h = max (p->left->h, p->right->h) + 1;
 }
 
-BinTreeEl* BinTreeEl::right_rotation(BinTreeEl* p)
+void BinTreeEl::delete_tree (BinTreeEl* tree)
 {
-	BinTreeEl* q = p->left;
-	BinTreeEl* r = q->right;
-	q -> right = NULL;
-	p -> left = NULL;
-	q -> right = p;
-	p -> left = r;
-	fix_h(p);
-	fix_h(q);
-	return q;
+    if (!tree == 0)
+        {
+            delete_tree(tree->left);
+            remove (tree, tree->val);
+            delete_tree (tree->right);
+        }
 }
 
 BinTreeEl* BinTreeEl::left_rotation(BinTreeEl* p)
 {
-	BinTreeEl* q = p->right;
-	BinTreeEl* l = q->left;
-	q -> left = p;
-	p -> right = l;
-	fix_h(p);
-	fix_h(q);
-	return q;
+    if (!p)
+        return NULL;
+    BinTreeEl* pl = p -> left;
+    p -> left = NULL;
+    BinTreeEl* q = p -> right;
+    int vp = p -> val, vq;
+    if (q)
+        vq = q -> val;
+    else
+        return p;
+    BinTreeEl* qr = q -> right;
+    q -> right = NULL;
+    BinTreeEl* ql = q -> left;
+    q -> left = NULL;
+    p -> right = NULL;
+    p -> val = vq; // полное очищение дерева
+
+    insert(p, vp);
+    p -> left -> right = ql;
+    p -> left -> left = pl;
+    p -> right = qr; // сборка его обратно
+    set_h(p);
+    return p;
+}
+
+BinTreeEl* BinTreeEl::right_rotation(BinTreeEl* p)
+{
+    if (!p)
+        return NULL;
+    BinTreeEl* pr = p -> right;
+    p -> right = NULL;
+    BinTreeEl* q = p -> left;
+    int vp = p -> val, vq;
+    if (q)
+        vq = q -> val;
+    else
+        return p;
+    BinTreeEl* qr = q -> right;
+    q -> right = NULL;
+    BinTreeEl* ql = q -> left;
+    q -> left = NULL;
+    p -> left = NULL;
+    p -> val = vq; // полное очищение дерева
+
+    insert(p, vp);
+    p -> right -> left = qr;
+    p -> right -> right = pr;
+    p -> left = ql; // сборка его обратно
+    set_h(p);
+    return p;
 }
 
 BinTreeEl* BinTreeEl::balance(BinTreeEl* p)
@@ -215,16 +256,6 @@ bool BinTreeEl::exists(BinTreeEl* root, int value)
 	}
 }
 
-void BinTreeEl::delete_tree (BinTreeEl* tree)
-{
-    if (!tree == 0)
-        {
-            delete_tree(tree->left);
-            delete tree;
-            delete_tree (tree->right);
-        }
-}
-
 int main()
 {
 	BinTreeEl *sample = new BinTreeEl();
@@ -254,6 +285,7 @@ int main()
 	sample->print_tree(sample);
 
     sample->balance(sample);
+    sample -> set_h(sample);
 	cout << endl << "Tree after balancing: " << endl;
     sample->print_tree(sample);
 
