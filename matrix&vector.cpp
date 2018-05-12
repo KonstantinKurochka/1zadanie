@@ -180,6 +180,13 @@ Matrix operator* (const Matrix m)
     return Matrix(a, b, c, d);
 }
 
+Vector operator* (const Vector v)
+{
+    double a = this->a * v.getX() + this->b * v.getY();
+    double b = this->c * v.getX() + this->d * v.getY();
+    return Vector (a, b);
+}    
+    
 double determinant ()
 {
     return this->a * this->d - this->b * this->c;
