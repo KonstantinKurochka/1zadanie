@@ -1,102 +1,101 @@
 #include <iostream>
+#include <math.h>
+
 using namespace std;
 
-class Vector2D
+class Vector
 {
 public:
-    float x, y;
-    Vector2D();
-	Vector2D(float a, float b);
-	float getX();
-	float getY();
-	void setX(float a);
-    void setY(float b);
-    Vector2D add (Vector2D b);
-    Vector2D subtract (Vector2D b);
-    Vector2D multiply (int b);
-    Vector2D scalar (Vector2D b);
-    void print (Vector2D v);
+Vector(){}
 
-};
+virtual ~Vector(){}
 
-Vector2D::Vector2D() {}
-
-Vector2D::Vector2D(float a, float b)
+Vector(double a, double b)
 {
     x = a;
     y = b;
 }
 
-float Vector2D::getX ()
+double getX() const
 {
-    return this->x;
+    return x;
 }
 
-float Vector2D::getY ()
+double getY() const
 {
-    return this->y;
+    return y;
 }
 
-void Vector2D::setX (float a)
+void setX(double x)
 {
-    this->x = a;
+    this->x = x;
 }
 
-void Vector2D::setY (float b)
+void setY(double y)
 {
-    this->y = b;
+    this->y = y;
 }
 
-Vector2D Vector2D::add (Vector2D b)
+Vector operator+ (const Vector& v)
 {
-    Vector2D v;
-    v.x = this->x + b.x;
-    v.y = this->y + b.y;
-    return v;
+    double a = this->getX() + v.x;
+    double b = this->getY() + v.y;
+    return Vector(a, b);
 }
 
-Vector2D Vector2D::subtract(Vector2D b)
+Vector operator- (const Vector& v)
 {
-    Vector2D v;
-    v.x = this->x - b.x;
-    v.y = this->y - b.y;
-    return v;
+    double a = this->getX() - v.x;
+    double b = this->getY() - v.y;
+    return Vector(a, b);
 }
 
-Vector2D Vector2D::multiply(int b)
+Vector operator* (const double f)
 {
-    Vector2D v;
-    v.x = this->x * b;
-    v.y = this->y * b;
-    return v;
+    double a = (this->getX()) * f;
+    double b = (this->getY()) * f;
+    return Vector(a, b);
+}
+double operator* (const Vector v)
+{
+    return (this->getX() * v.getX() + this->getY() * v.getY()) / (sqrt(this->getX() * this->getX() + this->getY() * this->getY()) * sqrt(v.getX() * v.getX() + v.getY() * v.getY()));
 }
 
-Vector2D Vector2D::scalar (Vector2D b)
+private:
+    double x, y;
+};
+
+Vector operator* (double f, Vector& v)
 {
-    Vector2D v;
-    v.x = this->x * b.x;
-    v.y = this->x * b.y;
-    return v;
-}
-void Vector2D::print(Vector2D v)
-{
-    cout << "[" << v.x << ", " << v.y << "]";
+    double a = f * v.getX();
+    double b = f * v.getY();
+    return Vector(a, b);
 }
 
-main ()
+istream& operator>>(istream &is, Vector &v)
 {
-    Vector2D A, B;
+    int a, b;
+    is >> a >> b;
+    v.setX(a);
+    v.setY(b);
+    return is;
+}
+
+ostream& operator<< (ostream &os, Vector &v)
+{
+    os << "[" <<v.getX() << ", " <<v.getY() << "] ";
+    return os;
+}
+
+int main ()
+{
+    Vector A, B;
     int num = 5;
-    A.setX(1);
-    A.setY(1);
-    B.setX(2);
-    B.setY(3);
-    cout << A.getX() << " " << A.getY() << " " << B.getX() << " " << B.getY() << endl;
-    A.setX(4);
-    B.setY(6);
-    (A.add(B)).print(A.add(B));
-    (A.subtract(B)).print(A.subtract(B));
-    (B.subtract(A)).print(B.subtract(A));
-    cout << endl << "Dot product of A & B: ";
-    (A.scalar(B)).print(A.scalar(B));
+    cin >> A >> B;
+    Vector C = A + B;
+    Vector D = A - B;
+    Vector E = A * num;
+    double F = A * B;
+    cout << C << D << E << F;
+    return 0;
 }
