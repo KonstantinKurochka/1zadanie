@@ -58,7 +58,7 @@ Vector operator* (const double f)
 }
 double operator* (const Vector v)
 {
-    return (this->getX() * v.getX() + this->getY() * v.getY()) / (sqrt(this->getX() * this->getX() + this->getY() * this->getY()) * sqrt(v.getX() * v.getX() + v.getY() * v.getY()));
+    return (this->getX() * v.getX() + this->getY() * v.getY());
 }
 
 private:
