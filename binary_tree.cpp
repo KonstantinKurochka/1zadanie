@@ -7,7 +7,6 @@ using namespace std;
 class BinTreeEl
 {
 public:
-    int val;
 
 	BinTreeEl() {}
 
@@ -224,7 +223,7 @@ private:
         return this->h;
     }
 
-    int h;
+    int val, h;
 	BinTreeEl* left;
 	BinTreeEl* right;
 
@@ -235,7 +234,8 @@ int main()
 	BinTreeEl *sample = new BinTreeEl();
     int i, n, num;
     cin >> n;
-	cin >> sample->val;
+    cin >> num;
+    *sample = BinTreeEl(num);
 
     for (i = 1; i < n; i++)
     {
