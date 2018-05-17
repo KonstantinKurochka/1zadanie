@@ -7,254 +7,228 @@ using namespace std;
 class BinTreeEl
 {
 public:
-	int val, h;
-	BinTreeEl* left;
-	BinTreeEl* right;
-	BinTreeEl* insert(BinTreeEl* root, int value);
-	void* remove(BinTreeEl* root, int value);
-	bool exists(BinTreeEl* root, int value);
-	void print_tree(BinTreeEl *tree);
-	BinTreeEl();
-	BinTreeEl(int value);
-	BinTreeEl* balance(BinTreeEl* ver);
-    int set_h(BinTreeEl* tree);
-    void delete_tree (BinTreeEl* root);
+    int val;
+
+	BinTreeEl() {}
+
+	BinTreeEl(int value)
+	{
+	    val = value;
+        h = 1;
+        left = NULL;
+        right = NULL;
+	}
+
+	BinTreeEl* insert(int value)
+    {
+        BinTreeEl *node;
+        if (!this)
+        {
+            node = new BinTreeEl;
+            node->val = value;
+            node->left = NULL;
+            node->right = NULL;
+            node->h = 1;
+            return node;
+        }
+        if (value < this->val)
+        {
+            node = this->left->insert(value);
+            if (!this->left)
+                this->left = node;
+            return node;
+        }
+        else
+        {
+            node = this->right->insert(value);
+            if (!this->right)
+                this->right = node;
+            return node;
+        }
+    }
+
+	void* remove (int value)
+	{
+        BinTreeEl** q, *z;
+
+        z=this;
+        q=&z;
+
+        while(1)
+            {
+                if(z == NULL) return 0;
+                else if(value == z->val) break;
+                else if(value > z->val)
+                {
+                    q = &z->right;
+                    z = z->right;
+                }
+                else
+                {
+                    q = &z->left;
+                    z = z->left;
+                }
+            }
+
+            if(z->right == NULL)
+                *q = z->left;
+            else
+            {
+                BinTreeEl* y = z->right;
+                if(y->left == NULL)
+                {
+                    y->left = z->left;
+                    y->set_h();
+                    *q = y;
+                }
+                else
+                {
+                    BinTreeEl* x = y->left;
+                    while(x->left != NULL)
+                    {
+                        y = x;
+                        x = y->left;
+                    }
+                    y->left = x->right;
+                    x->left = z->left;
+                    x->right = z->right;
+                    x->set_h();
+                    *q = x;
+                }
+            }
+            this->balance();
+    }
+
+	bool exists(int value)
+    {
+        if (!this)
+        {
+            return false;
+        }
+        else
+        {
+            if (this->val == value)
+                return true;
+            else
+            {
+                if (this->val > value)
+                {
+                    BinTreeEl* a = this->left;
+                    return a -> exists(value);
+                }
+                else
+                {
+                    BinTreeEl* b = this->right;
+                    return b -> exists(value);
+                }
+            }
+        }
+    }
+
+	void print_tree()
+	{
+        if (!this == 0)
+            {
+                this -> set_h();
+                this -> left -> print_tree();
+                cout << this -> val << " (" << this->h << "); ";
+                this -> right -> print_tree ();
+            }
+    }
 
 private:
-    BinTreeEl* left_rotation(BinTreeEl* p);
-	int bfactor(BinTreeEl* ver);
-	void fix_h(BinTreeEl* ver);
-	BinTreeEl* right_rotation(BinTreeEl* p);
+    BinTreeEl* left_rotation()
+    {
+        if (!this)
+            return NULL;
+        BinTreeEl* pl = this -> left;
+        this -> left = NULL;
+        BinTreeEl* q = this -> right;
+        int vp = this -> val, vq;
+        if (q)
+            vq = q -> val;
+        else
+            return this;
+        BinTreeEl* qr = q -> right;
+        q -> right = NULL;
+        BinTreeEl* ql = q -> left;
+        q -> left = NULL;
+        this -> right = NULL;
+        this -> val = vq; // полное очищение дерева
+
+        this -> insert(vp);
+        this -> left -> right = ql;
+        this -> left -> left = pl;
+        this -> right = qr; // сборка его обратно
+        this->set_h();
+        return this;
+    }
+
+	int bfactor()
+	{
+	    return this->right->set_h() - this->left->set_h();
+	}
+
+	BinTreeEl* right_rotation()
+        {
+        if (!this)
+            return NULL;
+        BinTreeEl* pr = this -> right;
+        this -> right = NULL;
+        BinTreeEl* q = this -> left;
+        int vp = this -> val, vq;
+        if (q)
+            vq = q -> val;
+        else
+            return this;
+        BinTreeEl* qr = q -> right;
+        q -> right = NULL;
+        BinTreeEl* ql = q -> left;
+        q -> left = NULL;
+        this -> left = NULL;
+        this -> val = vq;
+
+        this -> insert(vp);
+        this -> right -> left = qr;
+        this -> right -> right = pr;
+        this -> left = ql;
+        this -> set_h();
+        return this;
+    }
+
+	BinTreeEl* balance()
+	{
+        if( this->bfactor()==2 )
+        {
+            if( this->right->bfactor() < 0 )
+                this->right = this->right->right_rotation();
+            BinTreeEl* a = this->left_rotation();
+            return a;
+        }
+        if( this->bfactor()==-2 )
+        {
+            if( this->left->bfactor() > 0  )
+                this->left = this->left->left_rotation();
+            BinTreeEl* b = this->right_rotation();
+            return b;
+        }
+        this->set_h();
+        return this;
+    }
+
+    int set_h()
+    {
+        if (!this)
+            return 0;
+        this->h = max(this->left->set_h(), this->right->set_h()) + 1;
+        return this->h;
+    }
+
+    int h;
+	BinTreeEl* left;
+	BinTreeEl* right;
+
 };
-
-
-BinTreeEl::BinTreeEl() {}
-
-BinTreeEl::BinTreeEl(int value)
-{
-	val = value;
-	h = 1;
-	left = NULL;
-	right = NULL;
-}
-
-int BinTreeEl::set_h(BinTreeEl *tree)
-{
-    if (!tree)
-        return 0;
-    tree->h = max(set_h (tree->left), set_h (tree->right)) + 1;
-    return tree->h;
-}
-
-int BinTreeEl::bfactor(BinTreeEl* p)
-{
-	return set_h(p->right)-set_h(p->left);
-}
-
-void BinTreeEl::fix_h(BinTreeEl* p)
-{
-	p->h = max (p->left->h, p->right->h) + 1;
-}
-
-void BinTreeEl::delete_tree (BinTreeEl* tree)
-{
-    if (!tree == 0)
-        {
-            delete_tree(tree->left);
-            remove (tree, tree->val);
-            delete_tree (tree->right);
-        }
-}
-
-BinTreeEl* BinTreeEl::left_rotation(BinTreeEl* p)
-{
-    if (!p)
-        return NULL;
-    BinTreeEl* pl = p -> left;
-    p -> left = NULL;
-    BinTreeEl* q = p -> right;
-    int vp = p -> val, vq;
-    if (q)
-        vq = q -> val;
-    else
-        return p;
-    BinTreeEl* qr = q -> right;
-    q -> right = NULL;
-    BinTreeEl* ql = q -> left;
-    q -> left = NULL;
-    p -> right = NULL;
-    p -> val = vq; // полное очищение дерева
-
-    insert(p, vp);
-    p -> left -> right = ql;
-    p -> left -> left = pl;
-    p -> right = qr; // сборка его обратно
-    set_h(p);
-    return p;
-}
-
-BinTreeEl* BinTreeEl::right_rotation(BinTreeEl* p)
-{
-    if (!p)
-        return NULL;
-    BinTreeEl* pr = p -> right;
-    p -> right = NULL;
-    BinTreeEl* q = p -> left;
-    int vp = p -> val, vq;
-    if (q)
-        vq = q -> val;
-    else
-        return p;
-    BinTreeEl* qr = q -> right;
-    q -> right = NULL;
-    BinTreeEl* ql = q -> left;
-    q -> left = NULL;
-    p -> left = NULL;
-    p -> val = vq; // полное очищение дерева
-
-    insert(p, vp);
-    p -> right -> left = qr;
-    p -> right -> right = pr;
-    p -> left = ql; // сборка его обратно
-    set_h(p);
-    return p;
-}
-
-BinTreeEl* BinTreeEl::balance(BinTreeEl* p)
-{
-	fix_h(p);
-	if( bfactor(p)==2 )
-	{
-		if( bfactor(p->right) < 0 )
-			p->right = right_rotation(p->right);
-		p = left_rotation(p);
-		return p;
-	}
-	if( bfactor(p)==-2 )
-	{
-		if( bfactor(p->left) > 0  )
-			p->left = left_rotation(p->left);
-		p = right_rotation(p);
-		return p;
-	}
-	return p;
-}
-
-BinTreeEl* BinTreeEl::insert(BinTreeEl *tree, int value)
-{
-	BinTreeEl *node;
-	if (!tree)
-	{
-		node = new BinTreeEl;
-		node->val = value;
-		node->left = NULL;
-		node->right = NULL;
-		node->h = 1;
-		return node;
-	}
-	if (value < tree->val)
-	{
-		node = insert(tree->left, value);
-		if (!tree->left)
-			tree->left = node;
-		return node;
-	}
-	else
-	{
-		node = insert(tree->right, value);
-		if (!tree->right)
-			tree->right = node;
-		return node;
-	}
-    int a = set_h(tree);
-}
-
-void* BinTreeEl::remove(BinTreeEl* root, int value)
-{
-    BinTreeEl** q,*z;
-
-    q=&root;
-    z=root;
-    while(1) // поиск
-    {
-        if(z == NULL) return 0;
-        else if(value == z->val) break;
-        else if(value > z->val)
-        {
-            q = &z->right;
-            z = z->right;
-        }
-        else
-        {
-            q = &z->left;
-            z = z->left;
-        }
-    }
-
-    //удаление
-    if(z->right == NULL)
-        *q = z->left;
-    else
-    {
-        BinTreeEl* y = z->right;
-        if(y->left == NULL)
-        {
-            y->left = z->left;
-            set_h(y);
-            *q = y;
-        }
-        else
-        {
-            BinTreeEl* x = y->left;
-            while(x->left != NULL)
-            {
-                y = x;
-                x = y->left;
-            }
-            y->left = x->right;
-            x->left = z->left;
-            x->right = z->right;
-            set_h(x);
-            *q = x;
-        }
-    }
-}
-
-void BinTreeEl::print_tree(BinTreeEl *tree)
-{
-	if (!tree == 0)
-        {
-            print_tree(tree->left);
-            cout << tree -> val << " (" << tree->h << "); ";
-            print_tree (tree->right);
-        }
-}
-
-bool BinTreeEl::exists(BinTreeEl* root, int value)
-{
-	if (!root)
-	{
-		return false;
-	}
-	else
-	{
-		if (root->val == value)
-			return true;
-		else
-		{
-			if (root->val > value)
-			{
-				root = root->left;
-				return exists(root, value);
-			}
-			else
-			{
-				root = root->right;
-				return exists(root, value);
-			}
-		}
-	}
-}
 
 int main()
 {
@@ -266,29 +240,22 @@ int main()
     for (i = 1; i < n; i++)
     {
         cin >> num;
-        sample->insert(sample, num);
+        sample->insert(num);
     }
-    sample->set_h(sample);
 
 	cout << "Tree after creation:" << endl;
-	sample->print_tree(sample);
+	sample->print_tree();
 
 	cout << " " << endl;
-	if (sample->exists(sample, 1))
+	if (sample->exists(1))
 		cout << "Search for value 1: found" << endl;
 
-	if (!(sample)->exists(sample, 111))
+	if (!((sample)->exists(111)))
 		cout << "Search for value 111: not found" << endl;
 
-    sample->remove(sample, 7);
+    sample->remove(7);
 	cout << "Tree after deletion of the element: " << endl;
-	sample->print_tree(sample);
+	sample->print_tree();
 
-    sample->balance(sample);
-    sample -> set_h(sample);
-	cout << endl << "Tree after balancing: " << endl;
-    sample->print_tree(sample);
-
-	sample->delete_tree(sample);
 	return 0;
 }
