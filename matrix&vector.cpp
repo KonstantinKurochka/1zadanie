@@ -185,8 +185,8 @@ Vector operator* (const Vector v)
     double a = this->a * v.getX() + this->b * v.getY();
     double b = this->c * v.getX() + this->d * v.getY();
     return Vector (a, b);
-}    
-    
+}
+
 double determinant ()
 {
     return this->a * this->d - this->b * this->c;
@@ -225,16 +225,61 @@ ostream& operator<< (ostream &os, Matrix &m)
     return os;
 }
 
-int main ()
+int main()
 {
-    Matrix A, B;
-    int num = 5;
-    cin >> A >> B;
-    Matrix C = A + B;
-    Matrix D = A - B;
-    Matrix E = A * num;
-    Matrix F = A * B;
-    double G = A.determinant();
-    cout << C << D << E << F << G;
+    cout << "=== Test vector ===" << endl;
+
+    Vector v1 (1, 1);
+    Vector v2 (2, 2);
+    Vector v3;
+
+    v3 = (v1 + v2);
+    cout << v3 << endl;
+
+    v3 = (v1 - v2);
+    cout << v3 << endl;
+
+    v3 = v1 * 5;
+    cout << v3 << endl;
+
+    v3 = -5 * v2;
+    cout << v3 << endl;
+
+    cout << v1 << endl;
+    cout << v2 << endl;
+
+    cout << v1 * v2 << endl;
+
+    Matrix m1(0, 1, 1, 2);
+    Matrix m2(0, 1, 2, 2);
+    Matrix m3;
+
+    cout << "=== Test matrix ===" << endl;
+
+    m3 = m1 + m2;
+    cout << m3 << endl;
+
+    m3 = m1 - m2;
+    cout << m3 << endl;
+
+    m3 = m1 * 5;
+    cout << m3 << endl;
+
+    m3 = -5 * m2;
+    cout << m3 << endl;
+
+    cout << m1 << endl;
+    cout << m2 << endl;
+
+    m3 = m1 * m2;
+    cout << m3 << endl;
+
+    cout << m1.determinant() << endl;
+
+    cout << "=== Cross test vector and matrix ===" << endl;
+
+    v3 = m1 * v1;
+    cout << v3 << endl;
+
     return 0;
 }
