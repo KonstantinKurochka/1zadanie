@@ -31,6 +31,7 @@ public:
     {
         BinTreeEl *a = this;
         a = this -> insert_private(value);
+        delete (a);
     }
 
 	void* remove (int value)
@@ -57,7 +58,10 @@ public:
             }
 
             if(z->right == NULL)
+            {
                 *q = z->left;
+                z->~BinTreeEl();
+            }
             else
             {
                 BinTreeEl* y = z->right;
@@ -66,6 +70,7 @@ public:
                     y->left = z->left;
                     y->set_h();
                     *q = y;
+                    z->~BinTreeEl();
                 }
                 else
                 {
@@ -80,6 +85,7 @@ public:
                     x->right = z->right;
                     x->set_h();
                     *q = x;
+                    z->~BinTreeEl();
                 }
             }
             this->balance();
