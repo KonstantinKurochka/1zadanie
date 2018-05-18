@@ -8,10 +8,7 @@ class BinTreeEl
 {
 public:
 
-	BinTreeEl()
-	{
-        val = NULL;
-	}
+	BinTreeEl() {}
 
 	BinTreeEl(int value)
 	{
@@ -21,32 +18,19 @@ public:
         right = NULL;
 	}
 
-	BinTreeEl* insert(int value)
+	~BinTreeEl()
+	{
+	    if (this ->left)
+            delete this->left;
+
+	    if (this ->right)
+            delete this->right;
+	}
+
+    void insert (int value)
     {
-        BinTreeEl *node;
-        if (!this)
-        {
-            node = new BinTreeEl;
-            node->val = value;
-            node->left = NULL;
-            node->right = NULL;
-            node->h = 1;
-            return node;
-        }
-        if (value < this->val)
-        {
-            node = this->left->insert(value);
-            if (!this->left)
-                this->left = node;
-            return node;
-        }
-        else
-        {
-            node = this->right->insert(value);
-            if (!this->right)
-                this->right = node;
-            return node;
-        }
+        BinTreeEl *a = this;
+        a = this -> insert_private(value);
     }
 
 	void* remove (int value)
@@ -230,12 +214,62 @@ private:
 	BinTreeEl* left;
 	BinTreeEl* right;
 
+	BinTreeEl* insert_private(int value)
+    {
+        BinTreeEl *node;
+        if (!this)
+        {
+            node = new BinTreeEl;
+            node->val = value;
+            node->left = NULL;
+            node->right = NULL;
+            node->h = 1;
+            return node;
+        }
+        if (value < this->val)
+        {
+            node = this->left->insert_private(value);
+            if (!this->left)
+                this->left = node;
+            return node;
+        }
+        else
+        {
+            node = this->right->insert_private(value);
+            if (!this->right)
+                this->right = node;
+            return node;
+        }
+    }
 };
 
 int main()
 {
-    BinTreeEl* c = new BinTreeEl();
-    cout << "Value 0 exists: " << boolalpha << c->exists(0) << endl;
-    delete c;
-    return 0;
+    BinTreeEl *sample = new BinTreeEl();
+    int i, n, num;
+    cin >> n;
+    cin >> num;
+    *sample = BinTreeEl(num);
+
+    for (i = 1; i < n; i++)
+    {
+        cin >> num;
+        sample->insert(num);
+    }
+
+	cout << "Tree after creation:" << endl;
+	sample->print_tree();
+
+	cout << " " << endl;
+	if (sample->exists(1))
+		cout << "Search for value 1: found" << endl;
+
+	if (!((sample)->exists(111)))
+		cout << "Search for value 111: not found" << endl;
+
+    sample->remove(7);
+	cout << "Tree after deletion of the element: " << endl;
+	sample->print_tree();
+
+	delete sample;
 }
