@@ -1,292 +1,241 @@
 #include <iostream>
-#include "GLBall.h"
-#include "NBodyScene.h"
-#include <math.h>
-#define dt 0.0001
-#define cor0(x) ((((x) < 1e-50) && ((x) > -1e-50)) ? 0 : (x))
-#include <fstream>
+#include <stdio.h>
+#include <queue>
 
 using namespace std;
 
-class Vector
+class BinTreeEl
 {
 public:
-Vector(){}
 
-virtual ~Vector(){}
+	BinTreeEl()
+	{
+        val = NULL;
+	}
 
-Vector(double a, double b)
-{
-    x = a;
-    y = b;
-}
+	BinTreeEl(int value)
+	{
+	    val = value;
+        h = 1;
+        left = NULL;
+        right = NULL;
+	}
 
-double get_X() const
-{
-    return x;
-}
-
-double get_Y() const
-{
-    return y;
-}
-
-void setX(double x)
-{
-    this->x = x;
-}
-
-void setY(double y)
-{
-    this->y = y;
-}
-
-Vector operator+ (const Vector& v)
-{
-    double a = this->get_X() + v.x;
-    double b = this->get_Y() + v.y;
-    return Vector(a, b);
-}
-
-Vector operator- (const Vector& v)
-{
-    double a = this->get_X() - v.x;
-    double b = this->get_Y() - v.y;
-    return Vector(a, b);
-}
-
-Vector operator* (const double f)
-{
-    double a = (this->get_X()) * f;
-    double b = (this->get_Y()) * f;
-    return Vector(a, b);
-}
-
-Vector operator/ (const double f)
-{
-    double a = (this->get_X()) / f;
-    double b = (this->get_Y()) / f;
-    return Vector(a, b);
-}
-
-private:
-    double x, y;
-};
-
-Vector operator* (double f, Vector& v)
-{
-    double a = f * v.get_X();
-    double b = f * v.get_Y();
-    return Vector(a, b);
-}
-
-Vector operator/ (double f, Vector& v)
-{
-    double a = f / v.get_X();
-    double b = f / v.get_Y();
-    return Vector(a, b);
-}
-
-istream& operator>>(istream &is, Vector &v)
-{
-    int a, b;
-    is >> a >> b;
-    v.setX(a);
-    v.setY(b);
-    return is;
-}
-
-ostream& operator<< (ostream &os, Vector &v)
-{
-    os << v.get_X() << " " <<v.get_Y();
-    return os;
-}
-
-class Body : public GLBall
-{
-public:
-Body() {}
-
-~Body() {}
-
-Body(double a, double b, Vector c, double d)
-{
-    x = a;
-    y = b;
-    speed = c;
-    m = d;
-}
-
-void Step (Body* Array, int n)
-{
-    Vector accel = this->ResultantForce(Array, n) / this->m;
-    this->speed = this->speed + accel * dt;
-    this->x = this->x + this->speed.get_X() * dt;
-    this->y = this->y + this->speed.get_Y() * dt;
-}
-
-double getX() const
-{
-    return this->x;
-}
-
-double getY() const
-{
-    return this->y;
-}
-
-Vector getspeed() const
-{
-    return this->speed;
-}
-
-double getmass() const
-{
-    return this->m;
-}
-
-double getR () const
-{
-    return pow(this->m, (double)1/3);
-}
-
-void setx (double X)
-{
-    x = X;
-}
-
-void sety(double Y)
-{
-    y = Y;
-}
-
-void setspeed(Vector s)
-{
-    speed = s;
-}
-
-void setmass(double M)
-{
-    m = M;
-}
-
-private:
-
-double distance (Body* B)
-{
-    return sqrt((this->x - B->x)*(this->x - B->x) + (this->y - B->y)*(this->y - B->y));
-}
-
-Vector Force (Body* B)
-{
-    Vector a;
-    if ((this->distance(B)) > 0.00001)
+	BinTreeEl* insert(int value)
     {
-        a.setX(B->x - this->x);
-        a.setY(B->y - this->y);
-        a = this->m * a;
-        a = B->m * a;
-        a = a / ((this->distance(B)) * (this->distance(B)) * (this->distance(B))); // нормировка + деление на квадрат расстояния
-    }
-    else
-    {
-        a.setX(0);
-        a.setY(0);
-    }
-    return a;
-}
-
-Vector ResultantForce (Body* Array, int n)
-{
-    Vector a;
-    a.setX(0);
-    a.setY(0);
-    for (int i = 0; i < n; i++)
-    {
-        a = a + this->Force(&Array[i]);
-    }
-    return a;
-}
-
-double x;
-double y;
-Vector speed;
-double m;
-};
-
-istream& operator>>(istream &is, Body &B)
-{
-    double x, y, m;
-    Vector s;
-    is >> x >> y >> s >> m;
-    B.setx(x);
-    B.sety(y);
-    B.setspeed(s);
-    B.setmass(m);
-    return is;
-}
-
-ostream& operator<<(ostream &os,const Body &B)
-{
-    os << cor0(B.getX()) << "\t" << cor0(B.getY()) << "\t" << cor0(B.getspeed().get_X()) << "\t" << cor0(B.getspeed().get_Y()) << "\t" << cor0(B.getmass()) << "\t";
-    return os;
-}
-
-class SampleScene : public NBodyScene
-{
-protected:
-    int n;
-    Body *Array;
-
-public:
-    // Реализация методов интерфейса на базе *ваших* переменных
-
-    unsigned int getNumberOfBodies() const override
-    {
-        return n;
-    }
-
-    const GLBall& getBody(unsigned int number) const override
-    {
-        return Array[number];
-    }
-
-    void doTimeStep() override
-    {
-            for (int i = 0; i < n; i++)
-            {
-                cout << Array [i];
-                Array[i].Step(Array, n);
-            }
-            cout << endl;
-    }
-
-    void initScene()
-    {
-        cin >> n;
-        Array = new Body[n];
-        for (int i = 0; i < n; i++)
+        BinTreeEl *node;
+        if (!this)
         {
-            cin >> Array[i];
+            node = new BinTreeEl;
+            node->val = value;
+            node->left = NULL;
+            node->right = NULL;
+            node->h = 1;
+            return node;
+        }
+        if (value < this->val)
+        {
+            node = this->left->insert(value);
+            if (!this->left)
+                this->left = node;
+            return node;
+        }
+        else
+        {
+            node = this->right->insert(value);
+            if (!this->right)
+                this->right = node;
+            return node;
         }
     }
-};
 
-    NBodyScene* getScene()
-    {
-        SampleScene* s = new SampleScene();
-        s->initScene();
-        return s;
+	void* remove (int value)
+	{
+        BinTreeEl** q, *z;
+
+        z=this;
+        q=&z;
+
+        while(1)
+            {
+                if(z == NULL) return 0;
+                else if(value == z->val) break;
+                else if(value > z->val)
+                {
+                    q = &z->right;
+                    z = z->right;
+                }
+                else
+                {
+                    q = &z->left;
+                    z = z->left;
+                }
+            }
+
+            if(z->right == NULL)
+                *q = z->left;
+            else
+            {
+                BinTreeEl* y = z->right;
+                if(y->left == NULL)
+                {
+                    y->left = z->left;
+                    y->set_h();
+                    *q = y;
+                }
+                else
+                {
+                    BinTreeEl* x = y->left;
+                    while(x->left != NULL)
+                    {
+                        y = x;
+                        x = y->left;
+                    }
+                    y->left = x->right;
+                    x->left = z->left;
+                    x->right = z->right;
+                    x->set_h();
+                    *q = x;
+                }
+            }
+            this->balance();
     }
+
+	bool exists(int value)
+    {
+        if (!this || !this->val)
+        {
+            return false;
+        }
+        else
+        {
+            if (this->val == value)
+                return true;
+            else
+            {
+                if (this->val > value)
+                {
+                    BinTreeEl* a = this->left;
+                    return a -> exists(value);
+                }
+                else
+                {
+                    BinTreeEl* b = this->right;
+                    return b -> exists(value);
+                }
+            }
+        }
+    }
+
+	void print_tree()
+	{
+        if (!this == 0)
+            {
+                this -> set_h();
+                this -> left -> print_tree();
+                cout << this -> val << " (" << this->h << "); ";
+                this -> right -> print_tree ();
+            }
+    }
+
+private:
+    BinTreeEl* left_rotation()
+    {
+        if (!this)
+            return NULL;
+        BinTreeEl* pl = this -> left;
+        this -> left = NULL;
+        BinTreeEl* q = this -> right;
+        int vp = this -> val, vq;
+        if (q)
+            vq = q -> val;
+        else
+            return this;
+        BinTreeEl* qr = q -> right;
+        q -> right = NULL;
+        BinTreeEl* ql = q -> left;
+        q -> left = NULL;
+        this -> right = NULL;
+        this -> val = vq; // полное очищение дерева
+
+        this -> insert(vp);
+        this -> left -> right = ql;
+        this -> left -> left = pl;
+        this -> right = qr; // сборка его обратно
+        this->set_h();
+        return this;
+    }
+
+	int bfactor()
+	{
+	    return this->right->set_h() - this->left->set_h();
+	}
+
+	BinTreeEl* right_rotation()
+        {
+        if (!this)
+            return NULL;
+        BinTreeEl* pr = this -> right;
+        this -> right = NULL;
+        BinTreeEl* q = this -> left;
+        int vp = this -> val, vq;
+        if (q)
+            vq = q -> val;
+        else
+            return this;
+        BinTreeEl* qr = q -> right;
+        q -> right = NULL;
+        BinTreeEl* ql = q -> left;
+        q -> left = NULL;
+        this -> left = NULL;
+        this -> val = vq;
+
+        this -> insert(vp);
+        this -> right -> left = qr;
+        this -> right -> right = pr;
+        this -> left = ql;
+        this -> set_h();
+        return this;
+    }
+
+	BinTreeEl* balance()
+	{
+        if( this->bfactor()==2 )
+        {
+            if( this->right->bfactor() < 0 )
+                this->right = this->right->right_rotation();
+            BinTreeEl* a = this->left_rotation();
+            return a;
+        }
+        if( this->bfactor()==-2 )
+        {
+            if( this->left->bfactor() > 0  )
+                this->left = this->left->left_rotation();
+            BinTreeEl* b = this->right_rotation();
+            return b;
+        }
+        this->set_h();
+        return this;
+    }
+
+    int set_h()
+    {
+        if (!this)
+            return 0;
+        this->h = max(this->left->set_h(), this->right->set_h()) + 1;
+        return this->h;
+    }
+
+    int val, h;
+	BinTreeEl* left;
+	BinTreeEl* right;
+
+};
 
 int main()
 {
-    SampleScene* scene = (SampleScene*)getScene();
-    for(int i = 0; i < 100; i++)
-    {
-        scene->doTimeStep();
-    }
-
-    delete scene;
+    BinTreeEl* c = new BinTreeEl();
+    cout << "Value 0 exists: " << boolalpha << c->exists(0) << endl;
+    delete c;
     return 0;
 }
