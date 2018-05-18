@@ -31,7 +31,6 @@ public:
     {
         BinTreeEl *a = this;
         a = this -> insert_private(value);
-        delete (a);
     }
 
 	void* remove (int value)
