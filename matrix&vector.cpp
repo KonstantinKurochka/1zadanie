@@ -3,6 +3,8 @@
 
 using namespace std;
 
+template <typename T>
+
 class Vector
 {
 public:
@@ -10,84 +12,86 @@ Vector(){}
 
 virtual ~Vector(){}
 
-Vector(double a, double b)
+Vector(T a, T b)
 {
     x = a;
     y = b;
 }
 
-double getX() const
+T getX() const
 {
     return x;
 }
 
-double getY() const
+T getY() const
 {
     return y;
 }
 
-void setX(double x)
+void setX(T x)
 {
     this->x = x;
 }
 
-void setY(double y)
+void setY(T y)
 {
     this->y = y;
 }
 
 Vector operator+ (const Vector& v)
 {
-    double a = this->getX() + v.x;
-    double b = this->getY() + v.y;
+    T a = this->getX() + v.x;
+    T b = this->getY() + v.y;
     return Vector(a, b);
 }
 
 Vector operator- (const Vector& v)
 {
-    double a = this->getX() - v.x;
-    double b = this->getY() - v.y;
+    T a = this->getX() - v.x;
+    T b = this->getY() - v.y;
     return Vector(a, b);
 }
 
-Vector operator* (const double f)
+Vector operator* (const T f)
 {
-    double a = (this->getX()) * f;
-    double b = (this->getY()) * f;
+    T a = (this->getX()) * f;
+    T b = (this->getY()) * f;
     return Vector(a, b);
 }
-
-double operator* (const Vector v)
+T operator* (const Vector& v)
 {
     return (this->getX() * v.getX() + this->getY() * v.getY());
 }
 
-private:
-    double x, y;
-};
-
-Vector operator* (double f, Vector& v)
+friend ostream& operator<< (ostream &os, const Vector<T> &v)
 {
-    double a = f * v.getX();
-    double b = f * v.getY();
-    return Vector(a, b);
+    os << "[" <<v.getX() << ", " <<v.getY() << "] ";
+    return os;
 }
 
-istream& operator>>(istream &is, Vector &v)
+private:
+    T x, y;
+};
+
+template <typename T>
+Vector<T> operator* (T f, Vector<T> v)
 {
-    int a, b;
+    T a = f * v.getX();
+    T b = f * v.getY();
+    return Vector<T>(a, b);
+}
+
+template <typename T>
+istream& operator>>(istream &is, Vector<T> &v)
+{
+    T a, b;
     is >> a >> b;
     v.setX(a);
     v.setY(b);
     return is;
 }
 
-ostream& operator<< (ostream &os, Vector &v)
-{
-    os << "[" <<v.getX() << ", " <<v.getY() << "] ";
-    return os;
-}
-
+template <typename T>
 class Matrix
 {
 public:
@@ -95,7 +99,7 @@ Matrix(){}
 
 virtual ~Matrix(){}
 
-Matrix(double n1, double n2, double n3, double n4)
+Matrix(T n1, T n2, T n3, T n4)
 {
     a = n1;
     b = n2;
@@ -103,76 +107,76 @@ Matrix(double n1, double n2, double n3, double n4)
     d = n4;
 }
 
-double getA() const
+T getA() const
 {
     return a;
 }
 
-double getB() const
+T getB() const
 {
     return b;
 }
 
-double getC() const
+T getC() const
 {
     return c;
 }
 
-double getD() const
+T getD() const
 {
     return d;
 }
 
-void setA(double n)
+void setA(T n)
 {
     this->a = n;
 }
 
-void setB(double n)
+void setB(T n)
 {
     this->b = n;
 }
 
-void setC(double n)
+void setC(T n)
 {
     this->c = n;
 }
 
-void setD(double n)
+void setD(T n)
 {
     this->d = n;
 }
 
 Matrix operator+ (const Matrix& m)
 {
-    double a = this->getA() + m.a;
-    double b = this->getB() + m.b;
-    double c = this->getC() + m.c;
-    double d = this->getD() + m.d;
+    T a = this->getA() + m.a;
+    T b = this->getB() + m.b;
+    T c = this->getC() + m.c;
+    T d = this->getD() + m.d;
     return Matrix(a, b, c, d);
 }
 
 Matrix operator- (const Matrix& m)
 {
-    double a = this->getA() - m.a;
-    double b = this->getB() - m.b;
-    double c = this->getC() - m.c;
-    double d = this->getD() - m.d;
+    T a = this->getA() - m.a;
+    T b = this->getB() - m.b;
+    T c = this->getC() - m.c;
+    T d = this->getD() - m.d;
     return Matrix(a, b, c, d);
 }
 
-Matrix operator* (const double f)
+Matrix operator* (const T f)
 {
-    double a = this->getA() * f;
-    double b = this->getB() * f;
-    double c = this->getC() * f;
-    double d = this->getD() * f;
+    T a = this->getA() * f;
+    T b = this->getB() * f;
+    T c = this->getC() * f;
+    T d = this->getD() * f;
     return Matrix(a, b, c, d);
 }
 
 Matrix operator* (const Matrix m)
 {
-    double a, b, c, d;
+    T a, b, c, d;
     a = this->a * m.a + this->b * m.c;
     b = this->a * m.b + this->b * m.d;
     c = this->c * m.a + this->d * m.c;
@@ -180,35 +184,43 @@ Matrix operator* (const Matrix m)
     return Matrix(a, b, c, d);
 }
 
-Vector operator* (const Vector v)
+Vector <T> operator* (const Vector<T> v)
 {
-    double a = this->a * v.getX() + this->b * v.getY();
-    double b = this->c * v.getX() + this->d * v.getY();
-    return Vector (a, b);
+    T a = this->a * v.getX() + this->b * v.getY();
+    T b = this->c * v.getX() + this->d * v.getY();
+    return Vector<T> (a, b);
 }
 
-double determinant ()
+T determinant ()
 {
     return this->a * this->d - this->b * this->c;
 }
 
-private:
-    int a;
-    int b;
-    int c;
-    int d;
-};
-
-Matrix operator* (double f, Matrix& m)
+friend ostream& operator<< (ostream &os, const Matrix<T> &m)
 {
-    double a = f * m.getA();
-    double b = f * m.getB();
-    double c = f * m.getC();
-    double d = f * m.getD();
-    return Matrix(a, b, c, d);
+    os << "|" << m.getA() << " " << m.getB() << "|" << endl << "|" <<m.getC() << " " << m.getD() << "|" << endl;
+    return os;
 }
 
-istream& operator>>(istream &is, Matrix &m)
+private:
+    T a;
+    T b;
+    T c;
+    T d;
+};
+
+template <typename T>
+Matrix<T> operator* (double f, Matrix<T> &m)
+{
+    T a = f * m.getA();
+    T b = f * m.getB();
+    T c = f * m.getC();
+    T d = f * m.getD();
+    return Matrix<T>(a, b, c, d);
+}
+
+template <typename T>
+istream& operator>>(istream &is, Matrix<T> &m)
 {
     int a, b, c, d;
     is >> a >> b >> c >> d;
@@ -219,54 +231,41 @@ istream& operator>>(istream &is, Matrix &m)
     return is;
 }
 
-ostream& operator<< (ostream &os, Matrix &m)
-{
-    os << "|" << m.getA() << " " << m.getB() << "|" << endl << "|" <<m.getC() << " " << m.getD() << "|" << endl;
-    return os;
-}
 
 int main()
 {
     cout << "=== Test vector ===" << endl;
 
-    Vector v1 (1, 1);
-    Vector v2 (2, 2);
-    Vector v3;
+    Vector<int> v1 (1, 1);
+    Vector<int> v2 (2, 2);
+    Vector<int> v3;
 
-    v3 = (v1 + v2);
-    cout << v3 << endl;
+    cout << (v1 + v2) << endl;
 
-    v3 = (v1 - v2);
-    cout << v3 << endl;
+    cout << (v1 - v2) << endl;
 
-    v3 = v1 * 5;
-    cout << v3 << endl;
+    cout << v1 * 5 << endl;
 
-    v3 = -5 * v2;
-    cout << v3 << endl;
+    cout << -5 * v2 << endl;
 
     cout << v1 << endl;
     cout << v2 << endl;
 
     cout << v1 * v2 << endl;
 
-    Matrix m1(0, 1, 1, 2);
-    Matrix m2(0, 1, 2, 2);
-    Matrix m3;
+    Matrix<int> m1(0, 1, 1, 2);
+    Matrix<int> m2(0, 1, 2, 2);
+    Matrix<int> m3;
 
     cout << "=== Test matrix ===" << endl;
 
-    m3 = m1 + m2;
-    cout << m3 << endl;
+    cout << m1 + m2 << endl;
 
-    m3 = m1 - m2;
-    cout << m3 << endl;
+    cout << m1 - m2 << endl;
 
-    m3 = m1 * 5;
-    cout << m3 << endl;
+    cout << m1 * 5 << endl;
 
-    m3 = -5 * m2;
-    cout << m3 << endl;
+    cout << -5 * m2 << endl;
 
     cout << m1 << endl;
     cout << m2 << endl;
@@ -278,8 +277,7 @@ int main()
 
     cout << "=== Cross test vector and matrix ===" << endl;
 
-    v3 = m1 * v1;
-    cout << v3 << endl;
+    cout << m1 * v1 << endl;
 
     return 0;
 }
